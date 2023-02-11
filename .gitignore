@@ -1,0 +1,4 @@
+.idea/
+quarkus-integration-example/target/
+wicket-quarkus-integration/target/
+wicket-quarkus-integration-through-guice/target/
