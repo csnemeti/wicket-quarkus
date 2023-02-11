@@ -5,18 +5,22 @@
 The goal of this project is to show how to integrate Wicket with Quarkus.
 
 Before presenting the integration solution, a quick word about Quarkus competitor,
-**Spring Boot**, that will make you understand better the context we're in. 
+**Spring Boot**. This will make you understand better the context we're in
+when we try to create a Quarkus (Web) application. 
+
 Spring Boot allows you to create stand-alone applications
-(by declaring `JAR` packaging) or WEB applications (by declaring `WAR` packaging).
-Stand-alone application may run with `java -jar XXX.jar` while web applications
-may run in the following ways:
-- Deploy the `*.war` file into a Java Servlets supporting web server (like Tomcat).
+(by declaring `JAR` packaging in `pom.xml`) or WEB applications 
+(by declaring `WAR` packaging). Stand-alone application may run with 
+`java -jar XXX.jar` while web applications may run in the following ways:
+- Deploy the `*.war` file into a Java Servlets supporting web server (like Tomcat), OR
 - Run it same way as a stand-alone application, like this: `java -jar XXX.war`.
-In this case the embedded web server is started and the web application
+In this second case the embedded web server that you configured (default 
+is embedded Tomcat) with Spring Boot is started and the web application
 is installed and served through that (embedded) web server.
 
 In case of Quarkus, only `JAR` packaging is possible and web applications
-may run only the same way as stand-alone applications. 
+may run only the same way as stand-alone applications. Also, embedded 
+web server is different.
 
 ## How to Start?
 You must create a Quarkus application with **Undertow** extension. 
@@ -45,10 +49,15 @@ Here are the added dependencies:
 By adding these dependencies Wicket and Quarkus will run together (meaning
 inside the same JVM) BUT from Wicket pages and resources you cannot 
 use Quarkus beans. There is no `"Bean Injector"` defined in Wicket
-that will inject the beans.
+that will inject the beans. Also, please notice there is a `web.xml`
+file present in the project, and it's not in the usual place (under `webapps`)
+because Undertow requires it to be elsewhere. The 
+[quarkus-integration-example](./quarkus-integration-example) module
+from this project contains a fully working solution, including the web.xml 
+and the wicket application configuration inside.
 
 
-## Adding the Quarkus Injector
+## Adding the Quarkus Injector (based on Google Guice)
 There are many injection solutions defined for Wicket, but they do not work 
 with Quarkus. The best candidate is 
 [JavaEEComponentInjector](https://mvnrepository.com/artifact/org.wicketstuff/wicketstuff-javaee-inject)
@@ -81,12 +90,14 @@ Also, the Wicket application needs to have the following in init:
         // other configuration settings here
     }
 ```
-Also, problems might exist with unloaded beans, add the following in 
+Once you have this your injector should be fine. 
+If problems might exist with unloaded beans, add the following in 
 `application.properties`
 ```
 quarkus.arc.remove-unused-beans=false
 ```
 
-For this reason, I created my own injector. This is based on
-[Google Guice Wicket Injector](https://mvnrepository.com/artifact/org.apache.wicket/wicket-guice)
-that is much smaller and simpler to replicate.
+## Creating own Injector
+Since Google Guice is not so difficult, I'm working on my own injector
+that works directly with Quarkus.
+To Be Continued...
